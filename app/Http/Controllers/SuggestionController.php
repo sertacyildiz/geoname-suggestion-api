@@ -34,8 +34,8 @@ class SuggestionController extends Controller
         $long = (float)$request->input('longitude');
 
         $request->validate([
-            'lat' => ['required', new Latitude],
-            'long' => ['required', new Longitude],
+            'lat' => new Latitude,
+            'long' => new Longitude,
         ]);
 
         $suggestions = $this->suggestion_repository->search($query, $lat, $long);

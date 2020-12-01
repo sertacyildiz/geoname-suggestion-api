@@ -46,31 +46,31 @@ class SuggestionController extends Controller
 
         foreach ($geoname_array as $row) {
 
-            foreach ($row as $key => $column) {
+            foreach ($row as $key => $value) {
                 if ($key == 0) {
                     continue;
                 }
 
-                $cell = explode("\t", $column[0]);
+                $cells = explode("\t", $value[0]);
 
-                if ($cell[14] < 5000) {
+                if ($cells[14] < 5000) {
                     continue;
                 }
 
-                $new_name = $cell[1];
+                $new_name = $cells[1];
                 if (stripos($new_name, $query) === false) {
                     continue;
                 }
 
                 $math = new Math();
 
-                $new_lat = (double)$cell[4];
-                $new_long = (double)$cell[5];
+                $new_lat = (double)$cells[4];
+                $new_long = (double)$cells[5];
                 $distance = $math->distanceVincenty(['latitude' => $lat, 'longitude' => $long], ['latitude' => $new_lat, 'longitude' => $new_long]);
-                $country = $cell[8] == 'US' ? 'USA' : 'Canada';
+                $country = $cells[8] == 'US' ? 'USA' : 'Canada';
 
                 $geo = new \stdClass();
-                $geo->name = $cell[1] . ', ' . $cell[10] . ', ' . $country;
+                $geo->name = $cells[1] . ', ' . $cells[10] . ', ' . $country;
                 $geo->latitude = $new_lat;
                 $geo->longitude = $new_long;
 
@@ -82,25 +82,18 @@ class SuggestionController extends Controller
                 }
 
                 $this->suggestions[] = $geo;
-
             }
         }
 
         usort($this->suggestions,
             function ($a, $b) use ($query) {
-                if ($a->score < $b->score) {
-                    $result = 1;
-                } else if ($a->score > $b->score) {
-                    $result = -1;
-                } else {
-                    $result = 0;
-                    if (strrpos(strtolower($a->name), strtolower($query)) < strrpos(strtolower($b->name), strtolower($query))) {
-                        $result = 1;
-                    } else if (strrpos(strtolower($a->name), strtolower($query)) > strrpos(strtolower($b->name), strtolower($query))) {
-                        $result = -1;
+                if ($a->score == $b->score) {
+                    if (strripos($a->name, $query) == strripos($b->name, $query)) {
+                        return 0;
                     }
+                    return (strripos($a->name, $query) < strripos($b->name, $query)) ? -1 : 1;
                 }
-                return $result;
+                return ($a->score < $b->score) ? 1 : -1;
             }
         );
 

@@ -10,18 +10,17 @@ Geoname data source: [geonames.org](https://download.geonames.org/export/dump/)
 
 Run in the project directory :
 
-`
-npm install
+<pre><code>npm install
 composer install
-`
+</code></pre>
 
 **Sample Request:**
 
-`GET /suggestions?q=Londo&latitude=43.70011&longitude=-79.4163`
+<pre><code>GET /suggestions?q=Londo&latitude=43.70011&longitude=-79.4163</code></pre>
 
 **Sample Response:**
 
-`{
+<pre><code>{
      "suggestions": [
          {
              "name": "London, 08, Canada",
@@ -66,9 +65,9 @@ composer install
              "score": 0.4
          }
      ]
- }`
+ }</code></pre>
 
 
 **Testing**
 
-php artisan test
+<pre><code>php artisan test</code></pre>

@@ -57,25 +57,29 @@ class SuggestionController extends Controller
                     continue;
                 }
 
-                $new_name = $cells[1];
-                if (stripos($new_name, $query) === false) {
+                $city_name = $cells[1];
+                if (stripos($city_name, $query) === false) {
                     continue;
                 }
 
-                $math = new Math();
-
-                $new_lat = (double)$cells[4];
-                $new_long = (double)$cells[5];
-                $distance = $math->distanceVincenty(['latitude' => $lat, 'longitude' => $long], ['latitude' => $new_lat, 'longitude' => $new_long]);
+                $city_lat = (double)$cells[4];
+                $city_long = (double)$cells[5];
+                $state = $cells[10];
                 $country = $cells[8] == 'US' ? 'USA' : 'Canada';
 
-                $geo = new \stdClass();
-                $geo->name = $cells[1] . ', ' . $cells[10] . ', ' . $country;
-                $geo->latitude = $new_lat;
-                $geo->longitude = $new_long;
+                $math = new Math();
+                $from = ['latitude' => $lat, 'longitude' => $long];
+                $to = ['latitude' => $city_lat, 'longitude' => $city_long];
+                $distance = $math->distanceVincenty($from, $to);
 
-                $similarity_score = 1 - (float)number_format(levenshtein(strtolower($new_name), strtolower($query)) / 10, 1);
+                $geo = new \stdClass();
+                $geo->name = $city_name . ', ' .$state . ', ' . $country;
+                $geo->latitude = $city_lat;
+                $geo->longitude = $city_long;
+
+                $similarity_score = 1 - (float)number_format(levenshtein(strtolower($city_name), strtolower($query)) / 10, 1);
                 $distance_score = 1 - (float)number_format($distance->km() / 1000, 2);
+
                 $geo->score = (float)number_format(($similarity_score + $distance_score) / 2, 1);
                 if ($geo->score < 0.1) {
                     continue;
@@ -88,10 +92,10 @@ class SuggestionController extends Controller
         usort($this->suggestions,
             function ($a, $b) use ($query) {
                 if ($a->score == $b->score) {
-                    if (strripos($a->name, $query) == strripos($b->name, $query)) {
+                    if (strripos($a->city_name, $query) == strripos($b->city_name, $query)) {
                         return 0;
                     }
-                    return (strripos($a->name, $query) < strripos($b->name, $query)) ? -1 : 1;
+                    return (strripos($a->city_name, $query) < strripos($b->city_name, $query)) ? -1 : 1;
                 }
                 return ($a->score < $b->score) ? 1 : -1;
             }

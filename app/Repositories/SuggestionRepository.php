@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Imports\GeonameImport;
 use Geokit\Math;
+use http\QueryString;
 use Illuminate\Support\Str;
 
 class SuggestionRepository
@@ -54,13 +55,9 @@ class SuggestionRepository
                 $to = ['latitude' => $city_lat, 'longitude' => $city_long];
                 $distance = $math->distanceVincenty($from, $to);
 
-                $geo = new \stdClass();
-                $geo->name = $city_name . ', ' . $state . ', ' . $country;
-                $geo->latitude = $city_lat;
-                $geo->longitude = $city_long;
-                $geo->score = $this->calculateTotalScore($city_name, $query, $distance->km());
+                $geo = $this->createNewGeo($city_name, $state, $country, $city_lat, $city_long, $query, $distance->km());
                 if ($geo->score < 0.1) {
-                    continue;
+                    false;
                 }
 
                 $this->reorderSuggestionArray($query);
@@ -72,7 +69,19 @@ class SuggestionRepository
         return $this->suggestions;
     }
 
-    private function reorderSuggestionArray($query){
+    private function createNewGeo($city_name, $state, $country, $city_lat, $city_long, $query, $distance)
+    {
+        $geo = new \stdClass();
+        $geo->name = $city_name . ', ' . $state . ', ' . $country;
+        $geo->latitude = $city_lat;
+        $geo->longitude = $city_long;
+        $geo->score = $this->calculateTotalScore($city_name, $query, $distance);
+
+        return $geo;
+    }
+
+    private function reorderSuggestionArray($query)
+    {
         usort($this->suggestions,
             function ($a, $b) use ($query) {
                 if ($a->score == $b->score) {

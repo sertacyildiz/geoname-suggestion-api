@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\GetSuggestions;
+use App\Repositories\SuggestionRepository;
 use App\Rules\Latitude;
 use App\Rules\Longitude;
 use App\Services\SuggestionService;
@@ -13,14 +14,14 @@ use Illuminate\Validation\ValidationException;
 class SuggestionController extends Controller
 {
 
-    protected $suggestion_service;
+    protected $suggestion_repository;
 
     /**
-     * @param SuggestionService $suggestion_service
+     * @param SuggestionRepository $suggestion_repository
      */
-    public function __construct(SuggestionService $suggestion_service)
+    public function __construct(SuggestionRepository $suggestion_repository)
     {
-        $this->suggestion_service = $suggestion_service;
+        $this->suggestion_repository = $suggestion_repository;
     }
 
     /**
@@ -47,7 +48,7 @@ class SuggestionController extends Controller
             return Response::json(['error' => $long_rule->message()], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
-        $suggestions = $this->suggestion_service->search($query, $lat, $long);
+        $suggestions = $this->suggestion_repository->search($query, $lat, $long);
 
         if (empty($suggestions)) {
             return Response::json(['suggestions' => [], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT]);

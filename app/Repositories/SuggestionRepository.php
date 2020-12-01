@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Services;
+namespace App\Repositories;
 
 use App\Imports\GeonameImport;
 use Geokit\Math;
 
-class SuggestionService
+class SuggestionRepository
 {
-    protected $suggestions;
+    public $suggestions;
 
     public function __construct()
     {
@@ -20,7 +20,7 @@ class SuggestionService
      * @param $long
      * @return array
      */
-    public function search($query, $lat, $long): array
+    public function search($query, $lat, $long)
     {
         $geoname_array = (new GeonameImport)->toArray(public_path() . '/data/cities_canada-usa.tsv');
 
@@ -73,10 +73,10 @@ class SuggestionService
         usort($this->suggestions,
             function ($a, $b) use ($query) {
                 if ($a->score == $b->score) {
-                    if (strripos($a->city_name, $query) == strripos($b->city_name, $query)) {
+                    if (strripos($a->name, $query) == strripos($b->name, $query)) {
                         return 0;
                     }
-                    return (strripos($a->city_name, $query) < strripos($b->city_name, $query)) ? -1 : 1;
+                    return (strripos($a->name, $query) < strripos($b->name, $query)) ? -1 : 1;
                 }
                 return ($a->score < $b->score) ? 1 : -1;
             }

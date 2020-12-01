@@ -33,6 +33,18 @@ class SuggestionController extends Controller
         $lat = (float)$request->input('latitude');
         $long = (float)$request->input('longitude');
 
+        if (!isset($query)) {
+            return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        }
+
+        if (!isset($lat)) {
+            return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        }
+
+        if (!isset($long)) {
+            return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+        }
+
         $lat_rule = new Latitude;
         try {
             $this->validate($request, ['latitude' => $lat_rule]);
@@ -50,7 +62,7 @@ class SuggestionController extends Controller
         $suggestions = $this->suggestion_repository->search($query, $lat, $long);
 
         if (empty($suggestions)) {
-            return Response::json(['suggestions' => [], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT]);
+            return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
         return Response::json(['suggestions' => $suggestions], 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);

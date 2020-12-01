@@ -23,7 +23,7 @@ class SuggestionRepository
      */
     public function search($query, $lat, $long)
     {
-        $geoname_array = (new GeonameImport)->toArray(public_path() . '/data/cities_canada-usa.tsv');
+        $geoname_array = (new GeonameImport)->toArray(resource_path() . '/data/cities_canada-usa.tsv');
 
         foreach ($geoname_array as $row) {
 

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Imports\GeonameImport;
 use Geokit\Math;
+use Illuminate\Support\Str;
 
 class SuggestionRepository
 {
@@ -39,7 +40,7 @@ class SuggestionRepository
                 }
 
                 $city_name = $cells[1];
-                if (stripos($city_name, $query) === false) {
+                if (Str::contains(Str::lower($city_name), Str::lower($query)) === false) {
                     continue;
                 }
 
@@ -95,7 +96,7 @@ class SuggestionRepository
 
     private function calculateSimilarityScore($first, $second)
     {
-        return (1 - (float)number_format(levenshtein(strtolower($first), strtolower($second)) / 10, 1));
+        return (1 - (float)number_format(levenshtein(Str::lower($first), Str::lower($second)) / 10, 1));
     }
 
     private function calculateDistanceScore($distance_km)

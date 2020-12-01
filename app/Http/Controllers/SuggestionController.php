@@ -33,31 +33,10 @@ class SuggestionController extends Controller
         $lat = (float)$request->input('latitude');
         $long = (float)$request->input('longitude');
 
-        if (!isset($query)) {
-            return Response::json(['suggestions' => []], 204, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-        }
-
-        if (!isset($lat)) {
-            return Response::json(['suggestions' => []], 204, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-        }
-
-        if (!isset($long)) {
-            return Response::json(['suggestions' => []], 204, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-        }
-
-        $lat_rule = new Latitude;
-        try {
-            $this->validate($request, ['latitude' => $lat_rule]);
-        } catch (ValidationException $e) {
-            return Response::json(['error' => $lat_rule->message()], 204, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-        }
-
-        $long_rule = new Longitude;
-        try {
-            $this->validate($request, ['longitude' => $long_rule]);
-        } catch (ValidationException $e) {
-            return Response::json(['error' => $long_rule->message()], 204, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-        }
+        $request->validate([
+            'lat' => ['required', new Latitude],
+            'long' => ['required', new Longitude],
+        ]);
 
         $suggestions = $this->suggestion_repository->search($query, $lat, $long);
 

@@ -2,8 +2,8 @@
 
 namespace App\Repositories;
 
-use App\Imports\GeonameImport;
 use Geokit\Math;
+use App\Imports\GeonameImport;
 
 class SuggestionRepository
 {
@@ -15,14 +15,20 @@ class SuggestionRepository
     }
 
     /**
+     * Search cities by the given lat and long.
+     *
      * @param $query
      * @param $lat
      * @param $long
+     *
      * @return array
      */
     public function search($query, $lat, $long)
     {
-        $geoname_array = (new GeonameImport)->toArray(public_path() . '/data/cities_canada-usa.tsv');
+        /** @var GeonameImport $geonameImportObj */
+        $geonameImportObj = app(GeonameImport::class);
+
+        $geoname_array = $geonameImportObj->toArray(public_path() . '/data/cities_canada-usa.tsv');
 
         foreach ($geoname_array as $row) {
 

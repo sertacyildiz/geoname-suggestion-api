@@ -2,25 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\GetSuggestions;
-use App\Repositories\SuggestionRepository;
 use App\Rules\Latitude;
 use App\Rules\Longitude;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\GetSuggestions;
 use Illuminate\Support\Facades\Response;
+use App\Repositories\SuggestionRepository;
 use Illuminate\Validation\ValidationException;
 
-class SuggestionController extends Controller
+/**
+ * Class SuggestionController
+ * @package App\Http\Controllers
+ */
+final class SuggestionController extends Controller
 {
-
-    protected $suggestion_repository;
+    /**
+     * The implementation of suggestion repository.
+     *
+     * @var SuggestionRepository
+     */
+    private $suggestionRepository;
 
     /**
-     * @param SuggestionRepository $suggestion_repository
+     * @param SuggestionRepository $suggestionRepository
      */
-    public function __construct(SuggestionRepository $suggestion_repository)
+    public function __construct(SuggestionRepository $suggestionRepository)
     {
-        $this->suggestion_repository = $suggestion_repository;
+        $this->suggestionRepository = $suggestionRepository;
     }
 
     /**
@@ -45,27 +53,28 @@ class SuggestionController extends Controller
             return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
-        $lat_rule = new Latitude;
+        $latRule = new Latitude;
+
         try {
-            $this->validate($request, ['latitude' => $lat_rule]);
+            $this->validate($request, ['latitude' => $latRule]);
         } catch (ValidationException $e) {
-            return Response::json(['error' => $lat_rule->message()], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+            return Response::json(['error' => $latRule->message()], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
-        $long_rule = new Longitude;
+        $longRule = new Longitude;
+
         try {
-            $this->validate($request, ['longitude' => $long_rule]);
+            $this->validate($request, ['longitude' => $longRule]);
         } catch (ValidationException $e) {
-            return Response::json(['error' => $long_rule->message()], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
+            return Response::json(['error' => $longRule->message()], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
-        $suggestions = $this->suggestion_repository->search($query, $lat, $long);
+        $suggestions = $this->suggestionRepository->search($query, $lat, $long);
 
         if (empty($suggestions)) {
             return Response::json(['suggestions' => []], 404, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
         }
 
         return Response::json(['suggestions' => $suggestions], 200, ['Content-type' => 'application/json; charset=utf-8'], JSON_PRETTY_PRINT);
-
     }
 }

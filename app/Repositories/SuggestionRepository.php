@@ -54,22 +54,24 @@ class SuggestionRepository
                 $distance = $math->distanceVincenty($from, $to);
 
                 $geo = new \stdClass();
-                $geo->name = $city_name . ', ' .$state . ', ' . $country;
+                $geo->name = $city_name . ', ' . $state . ', ' . $country;
                 $geo->latitude = $city_lat;
                 $geo->longitude = $city_long;
-
-                $similarity_score = 1 - (float)number_format(levenshtein(strtolower($city_name), strtolower($query)) / 10, 1);
-                $distance_score = 1 - (float)number_format($distance->km() / 1000, 2);
-
-                $geo->score = (float)number_format(($similarity_score + $distance_score) / 2, 1);
+                $geo->score = $this->calculateTotalScore($city_name, $query, $distance->km());
                 if ($geo->score < 0.1) {
                     continue;
                 }
+
+                $this->reorderSuggestionArray($query);
 
                 $this->suggestions[] = $geo;
             }
         }
 
+        return $this->suggestions;
+    }
+
+    private function reorderSuggestionArray($query){
         usort($this->suggestions,
             function ($a, $b) use ($query) {
                 if ($a->score == $b->score) {
@@ -81,7 +83,23 @@ class SuggestionRepository
                 return ($a->score < $b->score) ? 1 : -1;
             }
         );
+    }
 
-        return $this->suggestions;
+    private function calculateTotalScore($city_name, $query, $distance_km)
+    {
+        $similarity_score = $this->calculateSimilarityScore($city_name, $query);
+        $distance_score = $this->calculateDistanceScore($distance_km);
+
+        return (float)number_format(($similarity_score + $distance_score) / 2, 1);
+    }
+
+    private function calculateSimilarityScore($first, $second)
+    {
+        return (1 - (float)number_format(levenshtein(strtolower($first), strtolower($second)) / 10, 1));
+    }
+
+    private function calculateDistanceScore($distance_km)
+    {
+        return (1 - (float)number_format($distance_km / 1000, 2));
     }
 }

@@ -27,7 +27,7 @@ final class GeonameSuggestionTest extends TestCase
     /**
      * returns 200
      */
-    public function test_response()
+    public function testResponse()
     {
         $this->response->assertStatus(200);
     }
@@ -36,7 +36,7 @@ final class GeonameSuggestionTest extends TestCase
      * returns suggestions data as array
      * @throws Throwable
      */
-    public function test_suggestions_array()
+    public function testSuggestionsArray()
     {
         $this->assertNotNull($this->json_data);
         $this->assertInstanceOf(AssertableJsonString::class, $this->json_data);
@@ -45,7 +45,7 @@ final class GeonameSuggestionTest extends TestCase
     /**
      * contains score, lat and long data
      */
-    public function test_data_structure()
+    public function testDataStructure()
     {
         $this->assertNotNull($this->json_data);
         $data = json_decode($this->json_data->json);

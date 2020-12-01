@@ -12,10 +12,10 @@ final class GeonameSuggestionTest extends TestCase
     private AssertableJsonString $json_data;
     private ?TestResponse $response = null;
 
-    protected function start(): void
+    protected function setUp(): void
     {
-        parent::start(); //
-        $this->response = $this->get('/suggestions?q=London');
+        parent::setUp(); //
+        $this->response = $this->get('/suggestions?q=Londo&latitude=43.70011&longitude=-79.4163');
         try {
             $this->json_data = $this->response->decodeResponseJson();
         } catch (Throwable $e) {

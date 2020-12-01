@@ -33,7 +33,8 @@ class SuggestionService
 
                 $cells = explode("\t", $value[0]);
 
-                if ($cells[14] < 5000) {
+                $city_population = (int)$cells[14];
+                if ($city_population < 5000) {
                     continue;
                 }
 

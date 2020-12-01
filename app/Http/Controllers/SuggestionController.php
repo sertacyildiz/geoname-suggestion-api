@@ -30,8 +30,8 @@ class SuggestionController extends Controller
     public function index(GetSuggestions $request): JsonResponse
     {
         $query = $request->input('q');
-        $lat = $request->input('latitude');
-        $long = $request->input('longitude');
+        $lat = (float)$request->input('latitude');
+        $long = (float)$request->input('longitude');
 
         $lat_rule = new Latitude;
         try {

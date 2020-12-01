@@ -8,7 +8,6 @@ use App\Rules\Latitude;
 use App\Rules\Longitude;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Validation\ValidationException;
 
 class SuggestionController extends Controller
 {

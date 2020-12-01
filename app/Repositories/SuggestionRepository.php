@@ -4,7 +4,6 @@ namespace App\Repositories;
 
 use App\Imports\GeonameImport;
 use Geokit\Math;
-use http\QueryString;
 use Illuminate\Support\Str;
 
 class SuggestionRepository
@@ -49,11 +48,7 @@ class SuggestionRepository
                 $city_long = (double)$cells[5];
                 $state = $cells[10];
                 $country = $cells[8] == 'US' ? 'USA' : 'Canada';
-
-                $math = new Math();
-                $from = ['latitude' => $lat, 'longitude' => $long];
-                $to = ['latitude' => $city_lat, 'longitude' => $city_long];
-                $distance = $math->distanceVincenty($from, $to);
+                $distance = $this->calculateDistance($lat, $long, $city_lat, $city_long);
 
                 $geo = $this->createNewGeo($city_name, $state, $country, $city_lat, $city_long, $query, $distance->km());
                 if ($geo->score < 0.1) {
@@ -78,6 +73,14 @@ class SuggestionRepository
         $geo->score = $this->calculateTotalScore($city_name, $query, $distance);
 
         return $geo;
+    }
+
+    private function calculateDistance($from_lat, $from_long, $to_lat, $to_long)
+    {
+        $math = new Math();
+        $from = ['latitude' => $from_lat, 'longitude' => $from_long];
+        $to = ['latitude' => $to_lat, 'longitude' => $to_long];
+        return $math->distanceVincenty($from, $to);
     }
 
     private function reorderSuggestionArray($query)
